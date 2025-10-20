@@ -1,15 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Card, CardContent } from './ui/card';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
+import { Button } from './ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog';
 import { ExternalLink } from 'lucide-react';
 import AppHeader from './AppHeader';
+import { loadSettings, saveSettings, type ThemeMode, type Settings } from '../utils/settings';
 
 export default function InfoScreen() {
-  const [theme, setTheme] = useState<'auto' | 'light' | 'dark'>('auto');
-  const [saveHistory, setSaveHistory] = useState(true);
-  const [saveLocation, setSaveLocation] = useState(false);
+  const [settings, setSettings] = useState<Settings>(loadSettings());
+  const [showRestartDialog, setShowRestartDialog] = useState(false);
+  const [pendingSettings, setPendingSettings] = useState<Settings | null>(null);
+
+  const handleThemeChange = (newTheme: ThemeMode) => {
+    const newSettings = { ...settings, theme: newTheme };
+    setPendingSettings(newSettings);
+    setShowRestartDialog(true);
+  };
+
+  const handleSaveHistoryChange = (checked: boolean) => {
+    const newSettings = { ...settings, saveHistory: checked };
+    setPendingSettings(newSettings);
+    setShowRestartDialog(true);
+  };
+
+  const handleSaveLocationChange = (checked: boolean) => {
+    const newSettings = { ...settings, saveLocation: checked };
+    setPendingSettings(newSettings);
+    setShowRestartDialog(true);
+  };
+
+  const handleConfirmRestart = () => {
+    if (pendingSettings) {
+      saveSettings(pendingSettings);
+      window.location.reload();
+    }
+  };
+
+  const handleCancelRestart = () => {
+    setPendingSettings(null);
+    setShowRestartDialog(false);
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -215,8 +257,8 @@ export default function InfoScreen() {
                     <p className="text-slate-900 mb-2"><strong>Автор:</strong> Estilian</p>
                     <p className="text-slate-900 mb-2"><strong>Версия:</strong> 1.8.0</p>
                     <p className="text-slate-900 mb-2"><strong>Последно обновяване:</strong> 25.08.2025</p>
-                    <p className="text-slate-900"><strong>Технологии:</strong> Expo (React Native), 
-                    React Native 0.81, Expo SDK 53, AsyncStorage (локална история), Safe Area Context, EAS Build.</p>
+                    <p className="text-slate-900"><strong>Технологии:</strong> React + Vite, TypeScript, 
+                    localStorage (локална история)</p>
                   </div>
 
                   <p className="text-xs text-slate-600">
@@ -239,9 +281,9 @@ export default function InfoScreen() {
                 <Label>Цветова схема</Label>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setTheme('auto')}
+                    onClick={() => handleThemeChange('auto')}
                     className={`flex-1 py-2 px-3 rounded-lg border-2 transition-all ${
-                      theme === 'auto'
+                      settings.theme === 'auto'
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
@@ -249,9 +291,9 @@ export default function InfoScreen() {
                     Автоматично
                   </button>
                   <button
-                    onClick={() => setTheme('light')}
+                    onClick={() => handleThemeChange('light')}
                     className={`flex-1 py-2 px-3 rounded-lg border-2 transition-all ${
-                      theme === 'light'
+                      settings.theme === 'light'
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
@@ -259,9 +301,9 @@ export default function InfoScreen() {
                     Светла
                   </button>
                   <button
-                    onClick={() => setTheme('dark')}
+                    onClick={() => handleThemeChange('dark')}
                     className={`flex-1 py-2 px-3 rounded-lg border-2 transition-all ${
-                      theme === 'dark'
+                      settings.theme === 'dark'
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
@@ -283,8 +325,8 @@ export default function InfoScreen() {
                   </p>
                 </div>
                 <Switch
-                  checked={saveHistory}
-                  onCheckedChange={setSaveHistory}
+                  checked={settings.saveHistory}
+                  onCheckedChange={handleSaveHistoryChange}
                 />
               </div>
 
@@ -297,14 +339,33 @@ export default function InfoScreen() {
                   </p>
                 </div>
                 <Switch
-                  checked={saveLocation}
-                  onCheckedChange={setSaveLocation}
+                  checked={settings.saveLocation}
+                  onCheckedChange={handleSaveLocationChange}
                 />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Restart Dialog */}
+      <AlertDialog open={showRestartDialog} onOpenChange={setShowRestartDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Рестартиране на приложението</AlertDialogTitle>
+            <AlertDialogDescription>
+              За да се приложат новите настройки, приложението трябва да бъде рестартирано. 
+              Желаете ли да продължите?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelRestart}>Отказ</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmRestart}>
+              Рестартирай
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
