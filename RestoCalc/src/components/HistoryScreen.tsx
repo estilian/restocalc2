@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Trash2, Share2, Copy, MapPin, Trash } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,293 +14,23 @@ import {
   AlertDialogTitle,
 } from './ui/alert-dialog';
 import AppHeader from './AppHeader';
+import { loadHistory, saveHistory, type HistoryItem } from '../utils/history';
 
 const EXCHANGE_RATE = 1.95583;
-
-interface HistoryItem {
-  id: string;
-  date: string;
-  time: string;
-  dueEUR: number;
-  dueBGN: number;
-  paidEUR: number;
-  paidBGN: number;
-  changeEUR: number;
-  location?: { lat: number; lng: number };
-}
-
-// Extended mock data (25 items)
-const mockHistory: HistoryItem[] = [
-  {
-    id: '1',
-    date: '20.10.2025',
-    time: '16:45',
-    dueEUR: 45.80,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 100,
-    changeEUR: 5.06,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '2',
-    date: '20.10.2025',
-    time: '14:23',
-    dueEUR: 23.50,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 50,
-    changeEUR: 2.04,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '3',
-    date: '20.10.2025',
-    time: '11:15',
-    dueEUR: 15.20,
-    dueBGN: 0,
-    paidEUR: 20,
-    paidBGN: 0,
-    changeEUR: 4.80,
-  },
-  {
-    id: '4',
-    date: '19.10.2025',
-    time: '18:45',
-    dueEUR: 0,
-    dueBGN: 45.99,
-    paidEUR: 10,
-    paidBGN: 20,
-    changeEUR: 6.48,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '5',
-    date: '19.10.2025',
-    time: '15:30',
-    dueEUR: 32.40,
-    dueBGN: 0,
-    paidEUR: 50,
-    paidBGN: 0,
-    changeEUR: 17.60,
-  },
-  {
-    id: '6',
-    date: '19.10.2025',
-    time: '12:10',
-    dueEUR: 8.75,
-    dueBGN: 0,
-    paidEUR: 10,
-    paidBGN: 0,
-    changeEUR: 1.25,
-  },
-  {
-    id: '7',
-    date: '18.10.2025',
-    time: '20:05',
-    dueEUR: 0,
-    dueBGN: 125.50,
-    paidEUR: 50,
-    paidBGN: 50,
-    changeEUR: 24.32,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '8',
-    date: '18.10.2025',
-    time: '16:22',
-    dueEUR: 55.90,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 120,
-    changeEUR: 5.47,
-  },
-  {
-    id: '9',
-    date: '18.10.2025',
-    time: '13:40',
-    dueEUR: 12.30,
-    dueBGN: 0,
-    paidEUR: 20,
-    paidBGN: 0,
-    changeEUR: 7.70,
-  },
-  {
-    id: '10',
-    date: '17.10.2025',
-    time: '19:15',
-    dueEUR: 27.85,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 60,
-    changeEUR: 2.84,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '11',
-    date: '17.10.2025',
-    time: '17:50',
-    dueEUR: 0,
-    dueBGN: 89.99,
-    paidEUR: 30,
-    paidBGN: 30,
-    changeEUR: 14.98,
-  },
-  {
-    id: '12',
-    date: '17.10.2025',
-    time: '14:35',
-    dueEUR: 18.60,
-    dueBGN: 0,
-    paidEUR: 20,
-    paidBGN: 0,
-    changeEUR: 1.40,
-  },
-  {
-    id: '13',
-    date: '16.10.2025',
-    time: '21:10',
-    dueEUR: 42.15,
-    dueBGN: 0,
-    paidEUR: 50,
-    paidBGN: 0,
-    changeEUR: 7.85,
-  },
-  {
-    id: '14',
-    date: '16.10.2025',
-    time: '18:25',
-    dueEUR: 9.90,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 20,
-    changeEUR: 0.33,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '15',
-    date: '16.10.2025',
-    time: '15:45',
-    dueEUR: 0,
-    dueBGN: 215.80,
-    paidEUR: 100,
-    paidBGN: 50,
-    changeEUR: 24.52,
-  },
-  {
-    id: '16',
-    date: '15.10.2025',
-    time: '20:30',
-    dueEUR: 35.70,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 80,
-    changeEUR: 5.20,
-  },
-  {
-    id: '17',
-    date: '15.10.2025',
-    time: '17:15',
-    dueEUR: 22.40,
-    dueBGN: 0,
-    paidEUR: 50,
-    paidBGN: 0,
-    changeEUR: 27.60,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '18',
-    date: '15.10.2025',
-    time: '13:55',
-    dueEUR: 0,
-    dueBGN: 67.50,
-    paidEUR: 20,
-    paidBGN: 20,
-    changeEUR: 9.72,
-  },
-  {
-    id: '19',
-    date: '14.10.2025',
-    time: '19:40',
-    dueEUR: 14.25,
-    dueBGN: 0,
-    paidEUR: 20,
-    paidBGN: 0,
-    changeEUR: 5.75,
-  },
-  {
-    id: '20',
-    date: '14.10.2025',
-    time: '16:05',
-    dueEUR: 51.30,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 110,
-    changeEUR: 5.00,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '21',
-    date: '14.10.2025',
-    time: '12:20',
-    dueEUR: 0,
-    dueBGN: 38.75,
-    paidEUR: 15,
-    paidBGN: 10,
-    changeEUR: 10.18,
-  },
-  {
-    id: '22',
-    date: '13.10.2025',
-    time: '20:55',
-    dueEUR: 29.80,
-    dueBGN: 0,
-    paidEUR: 50,
-    paidBGN: 0,
-    changeEUR: 20.20,
-  },
-  {
-    id: '23',
-    date: '13.10.2025',
-    time: '17:30',
-    dueEUR: 11.95,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 30,
-    changeEUR: 3.40,
-    location: { lat: 42.6977, lng: 23.3219 }
-  },
-  {
-    id: '24',
-    date: '13.10.2025',
-    time: '14:10',
-    dueEUR: 0,
-    dueBGN: 152.40,
-    paidEUR: 70,
-    paidBGN: 20,
-    changeEUR: 12.08,
-  },
-  {
-    id: '25',
-    date: '12.10.2025',
-    time: '21:25',
-    dueEUR: 37.60,
-    dueBGN: 0,
-    paidEUR: 0,
-    paidBGN: 100,
-    changeEUR: 13.56,
-  },
-];
-
 const ITEMS_PER_PAGE = 10;
 
 export default function HistoryScreen() {
-  const [history, setHistory] = useState<HistoryItem[]>(mockHistory);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [displayedItems, setDisplayedItems] = useState<HistoryItem[]>([]);
   const [itemsToShow, setItemsToShow] = useState(ITEMS_PER_PAGE);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
+
+  // Load history from localStorage on mount
+  useEffect(() => {
+    setHistory(loadHistory());
+  }, []);
 
   // Update displayed items when history or itemsToShow changes
   useEffect(() => {
@@ -333,13 +63,16 @@ export default function HistoryScreen() {
   }, [itemsToShow, history.length]);
 
   const deleteItem = (id: string) => {
-    setHistory(prev => prev.filter(item => item.id !== id));
+    const updatedHistory = history.filter(item => item.id !== id);
+    setHistory(updatedHistory);
+    saveHistory(updatedHistory);
     setDeleteItemId(null);
     toast.success('Записът е изтрит');
   };
 
   const clearAllHistory = () => {
     setHistory([]);
+    saveHistory([]);
     setShowClearDialog(false);
     toast.success('Историята е изчистена');
   };
@@ -526,7 +259,7 @@ export default function HistoryScreen() {
       </AlertDialog>
 
       {/* Delete single item confirmation dialog */}
-      <AlertDialog open={deleteItemId !== null} onOpenChange={(open) => !open && setDeleteItemId(null)}>
+      <AlertDialog open={deleteItemId !== null} onOpenChange={(open: boolean) => !open && setDeleteItemId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Изтриване на запис</AlertDialogTitle>
