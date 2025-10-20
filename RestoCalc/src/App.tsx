@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calculator, History, Info } from 'lucide-react';
 import CalculatorScreen from './components/CalculatorScreen';
 import HistoryScreen from './components/HistoryScreen';
 import InfoScreen from './components/InfoScreen';
+import { loadSettings, getEffectiveTheme } from './utils/settings';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'calculator' | 'history' | 'info'>('calculator');
 
+  useEffect(() => {
+    const settings = loadSettings();
+    const theme = getEffectiveTheme(settings.theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    
+    if (settings.theme === 'auto') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      };
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col max-w-md mx-auto">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col max-w-md mx-auto">
       {/* Main Content */}
       <div className="flex-1 overflow-auto pb-20">
         {activeTab === 'calculator' && <CalculatorScreen />}
@@ -17,14 +33,14 @@ export default function App() {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 shadow-lg">
+      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-lg">
         <div className="flex items-center justify-around">
           <button
             onClick={() => setActiveTab('calculator')}
             className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
               activeTab === 'calculator'
-                ? 'text-blue-500'
-                : 'text-slate-400'
+                ? 'text-blue-500 dark:text-blue-400'
+                : 'text-slate-400 dark:text-slate-500'
             }`}
           >
             <Calculator className="h-6 w-6" />
@@ -35,8 +51,8 @@ export default function App() {
             onClick={() => setActiveTab('history')}
             className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
               activeTab === 'history'
-                ? 'text-blue-500'
-                : 'text-slate-400'
+                ? 'text-blue-500 dark:text-blue-400'
+                : 'text-slate-400 dark:text-slate-500'
             }`}
           >
             <History className="h-6 w-6" />
@@ -47,8 +63,8 @@ export default function App() {
             onClick={() => setActiveTab('info')}
             className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
               activeTab === 'info'
-                ? 'text-blue-500'
-                : 'text-slate-400'
+                ? 'text-blue-500 dark:text-blue-400'
+                : 'text-slate-400 dark:text-slate-500'
             }`}
           >
             <Info className="h-6 w-6" />
