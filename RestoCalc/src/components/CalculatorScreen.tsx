@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import CurrencySelectModal from './CurrencySelectModal';
 import FullScreenChange from './FullScreenChange';
 import AppHeader from './AppHeader';
+import { loadSettings } from '../utils/settings';
+import { addHistoryItem, getCurrentLocation } from '../utils/history';
 
 const EXCHANGE_RATE = 1.95583;
 
@@ -92,9 +94,41 @@ export default function CalculatorScreen() {
     return normalized;
   };
 
+  // Save history when calculation is complete
+  const saveToHistory = async () => {
+    const settings = loadSettings();
+    
+    // Only save if history saving is enabled
+    if (!settings.saveHistory) {
+      return;
+    }
+
+    // Only save if there's a valid calculation (has due amount and change)
+    if (!hasDueAmount || totals.status !== 'change') {
+      return;
+    }
+
+    // Get location if enabled
+    let location = undefined;
+    if (settings.saveLocation) {
+      location = await getCurrentLocation();
+    }
+
+    // Save to history
+    addHistoryItem({
+      dueEUR: totals.totalDueEUR,
+      dueBGN: totals.totalDueBGN,
+      paidEUR: totals.totalPaidEUR,
+      paidBGN: totals.totalPaidBGN,
+      changeEUR: totals.changeInEUR,
+      location: location || undefined,
+    });
+  };
+
   // Handle blur event on paid fields - show full screen if there's change
-  const handlePaidBlur = () => {
+  const handlePaidBlur = async () => {
     if (totals.status === 'change') {
+      await saveToHistory();
       setShowFullScreen(true);
     }
   };
@@ -328,7 +362,10 @@ export default function CalculatorScreen() {
 
             <div className="flex gap-2">
               <Button
-                onClick={() => setShowFullScreen(true)}
+                onClick={async () => {
+                  await saveToHistory();
+                  setShowFullScreen(true);
+                }}
                 className="flex-1 bg-blue-500 hover:bg-blue-600"
                 disabled={totals.status !== 'change'}
               >
