@@ -47,11 +47,12 @@ RestoCalc/
 ## Recent Changes (Oct 20, 2025)
 1. Created TypeScript configuration files (tsconfig.json, tsconfig.node.json)
 2. Updated Vite config to use port 5000 and host 0.0.0.0 for Replit environment
-3. Configured HMR to work with Replit's proxy setup
-4. Added React and TypeScript type definitions to devDependencies
-5. Installed all project dependencies
-6. Created .gitignore for Node.js projects
-7. Set up deployment configuration
+3. Added `allowedHosts: true` to Vite config to bypass host verification (required for Replit proxy)
+4. Configured HMR to work with Replit's proxy setup
+5. Added React and TypeScript type definitions to devDependencies
+6. Installed all project dependencies
+7. Created .gitignore for Node.js projects
+8. Set up deployment configuration for autoscale deployment
 
 ## Key Features
 - Three-tab interface: Calculator, History, Information
