@@ -25,18 +25,21 @@ export default function InfoScreen() {
 
   const handleThemeChange = (newTheme: ThemeMode) => {
     const newSettings = { ...settings, theme: newTheme };
+    setSettings(newSettings);
     setPendingSettings(newSettings);
     setShowRestartDialog(true);
   };
 
   const handleSaveHistoryChange = (checked: boolean) => {
     const newSettings = { ...settings, saveHistory: checked };
+    setSettings(newSettings);
     setPendingSettings(newSettings);
     setShowRestartDialog(true);
   };
 
   const handleSaveLocationChange = (checked: boolean) => {
     const newSettings = { ...settings, saveLocation: checked };
+    setSettings(newSettings);
     setPendingSettings(newSettings);
     setShowRestartDialog(true);
   };
@@ -49,6 +52,8 @@ export default function InfoScreen() {
   };
 
   const handleCancelRestart = () => {
+    // Revert settings to the saved state
+    setSettings(loadSettings());
     setPendingSettings(null);
     setShowRestartDialog(false);
   };
