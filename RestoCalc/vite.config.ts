@@ -54,6 +54,9 @@
     build: {
       target: 'esnext',
       outDir: 'build',
+      rollupOptions: {
+        external: ['@capacitor/geolocation'],
+      },
     },
     server: {
       host: '0.0.0.0',
