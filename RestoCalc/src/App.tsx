@@ -5,8 +5,6 @@ import HistoryScreen from './components/HistoryScreen';
 import InfoScreen from './components/InfoScreen';
 import { loadSettings, getEffectiveTheme } from './utils/settings';
 
-import { Capacitor } from '@capacitor/core';
-
 export default function App() {
   const [activeTab, setActiveTab] = useState<'calculator' | 'history' | 'info'>('calculator');
 
