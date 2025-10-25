@@ -1,5 +1,10 @@
 export type ThemeMode = 'auto' | 'light' | 'dark';
 
+export const googleAdMobBannerId = 'ca-app-pub-4675518894512456/4808600748';
+export const googleAdMobTestBannerId = 'ca-app-pub-3940256099942544/6300978111'
+export const showGoogleAd: boolean = true; // Set to false to disable ads
+export const ADMOB_TEST_MODE: boolean = true; // Set to false for production
+
 export interface Settings {
   theme: ThemeMode;
   saveHistory: boolean;

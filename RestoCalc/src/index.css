@@ -125,6 +125,12 @@
 }
 
 @layer base {
+  :root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+  
   *, :after, :before, ::backdrop {
     box-sizing: border-box;
     border: 0 solid;
@@ -435,6 +441,9 @@
 }
 
 @layer utilities {
+  .safe-top { top: var(--safe-top); }
+  .safe-bottom { bottom: var(--safe-bottom); }
+  
   .\@container\/card-header {
     container: card-header / inline-size;
   }

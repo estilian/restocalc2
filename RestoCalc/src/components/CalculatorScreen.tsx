@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Coins, Maximize2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent } from './ui/card';
-import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import CurrencySelectModal from './CurrencySelectModal';
 import FullScreenChange from './FullScreenChange';
 import AppHeader from './AppHeader';
 import { loadSettings } from '../utils/settings';
 import { addHistoryItem, getCurrentLocation } from '../utils/history';
+
+import { BannerAd } from '@admob-plus/capacitor';
+
+import { Capacitor } from '@capacitor/core';
+import { ADMOB_TEST_MODE, showGoogleAd, googleAdMobBannerId, googleAdMobTestBannerId } from '../utils/settings';
 
 const EXCHANGE_RATE = 1.95583;
 
@@ -25,6 +30,61 @@ export default function CalculatorScreen() {
 
   const dueEURInputRef = React.useRef<HTMLInputElement>(null);
 
+  const AD_UNIT_ID = ADMOB_TEST_MODE ? googleAdMobTestBannerId : googleAdMobBannerId;
+  const bannerRef = React.useRef<BannerAd | null>(null);
+
+  // Показване на банера точно над fixed <nav> (50px)
+  useEffect(() => {
+    if (Capacitor.getPlatform() !== 'android' || !showGoogleAd) return;
+
+    let cancelled = false;
+
+    const showBannerSafely = async () => {
+      try {
+        // Изчакай React да приключи layout/анимации
+        await InteractionManager.runAfterInteractions();
+
+        // Увери се, че приложението е на преден план
+        if (AppState.currentState !== 'active') return;
+
+        if (!bannerRef.current) {
+          bannerRef.current = new BannerAd({
+            adUnitId: ADMOB_TEST_MODE ? googleAdMobTestBannerId : googleAdMobBannerId,
+            position: 'bottom', // (без offset за първи показ)
+          });
+        }
+        if (!cancelled) {
+          await bannerRef.current.show();
+        }
+
+        // Ако мине стабилно, можеш да пресъздадеш с offset след 1 frame:
+        // requestAnimationFrame(async () => {
+        //   try {
+        //     await bannerRef.current?.hide();
+        //     bannerRef.current = new BannerAd({
+        //       adUnitId: ADMOB_TEST_MODE ? googleAdMobTestBannerId : googleAdMobBannerId,
+        //       position: 'bottom',
+        //       offset: 50,
+        //     });
+        //     if (!cancelled) await bannerRef.current?.show();
+        //   } catch (e) { console.warn('offset re-create failed:', e); }
+        // });
+
+      } catch (e) {
+        console.error('Banner show error:', e);
+      }
+    };
+
+    // Отложи до след първия paint + idle
+    const t = setTimeout(showBannerSafely, 0);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+      bannerRef.current?.hide().catch(() => {});
+    };
+  }, [showGoogleAd, ADMOB_TEST_MODE, googleAdMobTestBannerId, googleAdMobBannerId]);
+  
   // Auto-focus on first input when component mounts
   useEffect(() => {
     if (dueEURInputRef.current) {
@@ -405,18 +465,22 @@ export default function CalculatorScreen() {
         }}
       />
 
-      <Dialog open={showFullScreen} onOpenChange={setShowFullScreen}>
-        <DialogContent className="max-w-md">
-          <DialogTitle className="sr-only">Ресто за връщане</DialogTitle>
-          <FullScreenChange
-            changeEUR={totals.changeInEUR}
-            dueEUR={totals.totalDueEUR}
-            dueBGN={totals.totalDueBGN}
-            paidEUR={totals.totalPaidEUR}
-            paidBGN={totals.totalPaidBGN}
-          />
-        </DialogContent>
-      </Dialog>
+      {showFullScreen && (
+        <Dialog open onOpenChange={setShowFullScreen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Ресто за връщане</DialogTitle>
+            </DialogHeader>
+            <FullScreenChange
+              changeEUR={totals.changeInEUR}
+              dueEUR={totals.totalDueEUR}
+              dueBGN={totals.totalDueBGN}
+              paidEUR={totals.totalPaidEUR}
+              paidBGN={totals.totalPaidBGN}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

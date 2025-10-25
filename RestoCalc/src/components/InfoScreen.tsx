@@ -23,6 +23,14 @@ export default function InfoScreen() {
   const [showRestartDialog, setShowRestartDialog] = useState(false);
   const [pendingSettings, setPendingSettings] = useState<Settings | null>(null);
 
+  const [tab, setTab] = useState<'how-it-works' | 'law' | 'about'>('how-it-works');
+
+  useEffect(() => {
+    const openSettings = () => setTab('about'); // „Приложението“/Настройки
+    window.addEventListener('restocalc:open-settings', openSettings);
+    return () => window.removeEventListener('restocalc:open-settings', openSettings);
+  }, []);
+  
   const handleThemeChange = (newTheme: ThemeMode) => {
     const newSettings = { ...settings, theme: newTheme };
     setSettings(newSettings);
@@ -64,7 +72,7 @@ export default function InfoScreen() {
       <AppHeader title="Информация" />
 
       {/* Tabs */}
-      <Tabs defaultValue="how-it-works" className="w-full">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="how-it-works">Как работи</TabsTrigger>
           <TabsTrigger value="law">Закон за еврото</TabsTrigger>
@@ -252,16 +260,13 @@ export default function InfoScreen() {
                 <h2 className="text-slate-900 mb-2">За приложението</h2>
                 <div className="text-sm text-slate-700 space-y-3">
                   <p>
-                    <strong>RestoCalc</strong> е некомерсиален продукт, разработен от 
-                    <strong> Estilian</strong> в полза на потребителите. Приложението 
-                    <strong> не е разработено и публикувано от името на държавна администрация</strong> 
-                    и не представлява официален инструмент или доказателство.
+                    <strong>RestoCalc</strong> е некомерсиален продукт, разработен от любител програмист в полза на потребителите. Приложението <strong>не е разработено и публикувано от името на държавна администрация</strong> и не представлява официален инструмент или доказателство.
                   </p>
 
                   <div className="bg-slate-100 rounded-lg p-3">
                     <p className="text-slate-900 mb-2"><strong>Автор:</strong> Estilian</p>
-                    <p className="text-slate-900 mb-2"><strong>Версия:</strong> 1.8.0</p>
-                    <p className="text-slate-900 mb-2"><strong>Последно обновяване:</strong> 25.08.2025</p>
+                    <p className="text-slate-900 mb-2"><strong>Версия:</strong> 2.2.0</p>
+                    <p className="text-slate-900 mb-2"><strong>Последно обновяване:</strong> 20.10.2025</p>
                     <p className="text-slate-900"><strong>Технологии:</strong> React + Vite, TypeScript, 
                     localStorage (локална история)</p>
                   </div>
@@ -326,7 +331,7 @@ export default function InfoScreen() {
                 <div className="space-y-0.5">
                   <Label>Запис на история</Label>
                   <p className="text-xs text-slate-500">
-                    Записвай изчисленията за справка
+                    Записвай всяко изчислено ресто в историята
                   </p>
                 </div>
                 <Switch
@@ -338,9 +343,9 @@ export default function InfoScreen() {
               {/* Save Location */}
               <div className="flex items-center justify-between py-2">
                 <div className="space-y-0.5">
-                  <Label>Запис на локация</Label>
+                  <Label>Запис на локация в история</Label>
                   <p className="text-xs text-slate-500">
-                    Пази местоположението при изчисление
+                    Пази местоположението при изчислено ресто в историята
                   </p>
                 </div>
                 <Switch

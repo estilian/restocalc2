@@ -8,7 +8,7 @@ interface AppHeaderProps {
 
 export default function AppHeader({ title, subtitle }: AppHeaderProps) {
   return (
-    <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3 mb-5 sticky top-0 z-10">
+    <div className="bg-white border-b border-slate-200 -mx-4 -mt-4 px-4 py-3 mb-5 sticky top-0 z-10 safe-top">
       <div className="flex items-center gap-2.5">
         <img 
           src={appIcon} 

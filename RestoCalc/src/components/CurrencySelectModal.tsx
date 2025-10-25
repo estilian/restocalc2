@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -29,6 +29,8 @@ export default function CurrencySelectModal({
   currentAmount
 }: CurrencySelectModalProps) {
   const [selected, setSelected] = useState<{ [key: number]: number }>({});
+
+  const prevOpenRef = useRef(false);
 
   const denominations = currency === 'EUR' ? EUR_DENOMINATIONS : BGN_DENOMINATIONS;
 
@@ -88,14 +90,20 @@ export default function CurrencySelectModal({
 
   // Set optimal combination when modal opens with currentAmount
   useEffect(() => {
-    if (open && currentAmount && currentAmount > 0) {
-      const optimal = calculateOptimalCombination(currentAmount);
-      setSelected(optimal);
-    } else if (!open) {
+    const wasOpen = prevOpenRef.current;
+    if (!wasOpen && open) {
+      if (currentAmount && currentAmount > 0) {
+        const optimal = calculateOptimalCombination(currentAmount);
+        setSelected(optimal);
+      } else {
+        setSelected({});
+      }
+    }
+    if (wasOpen && !open) {
       setSelected({});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, currentAmount, currency]);
+    prevOpenRef.current = open;
+  }, [open, currency]);
 
   const handleClear = () => {
     setSelected({});

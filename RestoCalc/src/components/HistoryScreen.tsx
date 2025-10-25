@@ -15,21 +15,25 @@ import {
 } from './ui/alert-dialog';
 import AppHeader from './AppHeader';
 import { loadHistory, saveHistory, type HistoryItem } from '../utils/history';
+import { loadSettings } from '../utils/settings';
 
 const EXCHANGE_RATE = 1.95583;
 const ITEMS_PER_PAGE = 10;
 
-export default function HistoryScreen() {
+type Props = { goToSettings?: () => void };
+export default function HistoryScreen({ goToSettings }: Props) {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [displayedItems, setDisplayedItems] = useState<HistoryItem[]>([]);
   const [itemsToShow, setItemsToShow] = useState(ITEMS_PER_PAGE);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
+  const [historyEnabled, setHistoryEnabled] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  // Load history from localStorage on mount
+  // Load history + settings on mount
   useEffect(() => {
     setHistory(loadHistory());
+    setHistoryEnabled(loadSettings().saveHistory);
   }, []);
 
   // Update displayed items when history or itemsToShow changes
@@ -44,7 +48,7 @@ export default function HistoryScreen() {
         const first = entries[0];
         if (first.isIntersecting && itemsToShow < history.length) {
           // Load more items
-          setItemsToShow(prev => Math.min(prev + ITEMS_PER_PAGE, history.length));
+          setItemsToShow((prev) => Math.min(prev + ITEMS_PER_PAGE, history.length));
         }
       },
       { threshold: 0.1 }
@@ -63,7 +67,7 @@ export default function HistoryScreen() {
   }, [itemsToShow, history.length]);
 
   const deleteItem = (id: string) => {
-    const updatedHistory = history.filter(item => item.id !== id);
+    const updatedHistory = history.filter((item) => item.id !== id);
     setHistory(updatedHistory);
     saveHistory(updatedHistory);
     setDeleteItemId(null);
@@ -79,9 +83,9 @@ export default function HistoryScreen() {
 
   const formatShareText = (item: HistoryItem) => {
     // Calculate both currencies
-    const dueEUR = item.dueEUR > 0 ? item.dueEUR : (item.dueBGN / EXCHANGE_RATE);
-    const dueBGN = item.dueBGN > 0 ? item.dueBGN : (item.dueEUR * EXCHANGE_RATE);
-    
+    const dueEUR = item.dueEUR > 0 ? item.dueEUR : item.dueBGN / EXCHANGE_RATE;
+    const dueBGN = item.dueBGN > 0 ? item.dueBGN : item.dueEUR * EXCHANGE_RATE;
+
     return `Данни за плащане в две валути и ресто в евро
 Дата на събитие: ${item.time} ${item.date}
 Дължима сума: ${dueEUR.toFixed(2)} EUR или ${dueBGN.toFixed(2)} BGN
@@ -93,7 +97,7 @@ export default function HistoryScreen() {
 
   const shareItem = async (item: HistoryItem) => {
     const text = formatShareText(item);
-    
+
     try {
       if (navigator.share) {
         await navigator.share({ text });
@@ -108,7 +112,7 @@ export default function HistoryScreen() {
 
   const copyToClipboard = async (item: HistoryItem) => {
     const text = formatShareText(item);
-    
+
     try {
       await navigator.clipboard.writeText(text);
       toast.success('Копирано в clipboard');
@@ -121,11 +125,37 @@ export default function HistoryScreen() {
     window.open(`https://maps.google.com/?q=${location.lat},${location.lng}`, '_blank');
   };
 
+  // Навигация към „Информация → Настройки“
+  const handleGoToSettings = () => {
+    if (goToSettings) {
+      goToSettings(); // това ще смени таба към "info" в App и ще пусне събитието
+    } else {
+      // резервен вариант, ако пропът липсва:
+      window.dispatchEvent(new CustomEvent('restocalc:open-settings'));
+      window.location.hash = '#settings';
+    }
+  };
+
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
       <AppHeader title="История на изчисленията" />
-      
+
+      {/* Банер при изключена история */}
+      {!historyEnabled && (
+        <div className="flex items-start justify-between gap-3 rounded-lg border border-amber-300/60 bg-amber-50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-200 p-3 -mt-2">
+          <div className="text-sm leading-snug">
+            Историята е <strong>деактивирана</strong> от настройките. Нови записи няма да се запазват.
+          </div>
+          <button
+            onClick={handleGoToSettings}
+            className="flex-1 flex items-center justify-center gap-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm text-slate-700 transition-colors"
+          >
+            Настройки
+          </button>
+        </div>
+      )}
+
       {history.length > 0 && (
         <div className="flex justify-between items-center -mt-2">
           <p className="text-xs text-slate-500">
@@ -153,11 +183,11 @@ export default function HistoryScreen() {
       ) : (
         <>
           <div className="space-y-3">
-            {displayedItems.map(item => {
+            {displayedItems.map((item) => {
               // Calculate both currencies for display
-              const dueEUR = item.dueEUR > 0 ? item.dueEUR : (item.dueBGN / EXCHANGE_RATE);
-              const dueBGN = item.dueBGN > 0 ? item.dueBGN : (item.dueEUR * EXCHANGE_RATE);
-              
+              const dueEUR = item.dueEUR > 0 ? item.dueEUR : item.dueBGN / EXCHANGE_RATE;
+              const dueBGN = item.dueBGN > 0 ? item.dueBGN : item.dueEUR * EXCHANGE_RATE;
+
               return (
                 <Card key={item.id} className="border-slate-200 shadow-sm">
                   <CardContent className="p-4">
@@ -205,7 +235,7 @@ export default function HistoryScreen() {
                       </button>
                       <button
                         onClick={() => copyToClipboard(item)}
-                        className="flex-1 flex items-center justify-center gap-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm text-slate-700 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 py-2 px-3 bg-blue-50 hover:bg-blue-100 rounded-lg text-sm text-blue-700 transition-colors"
                       >
                         <Copy className="h-3.5 w-3.5" />
                         Копирай
@@ -259,7 +289,10 @@ export default function HistoryScreen() {
       </AlertDialog>
 
       {/* Delete single item confirmation dialog */}
-      <AlertDialog open={deleteItemId !== null} onOpenChange={(open: boolean) => !open && setDeleteItemId(null)}>
+      <AlertDialog
+        open={deleteItemId !== null}
+        onOpenChange={(open: boolean) => !open && setDeleteItemId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Изтриване на запис</AlertDialogTitle>

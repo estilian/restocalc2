@@ -1,6 +1,10 @@
-@custom-variant dark (&:is(.dark *));
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
+  --nav-height: 50px;           /* фиксирана височина на #app-nav */
+  --admob-banner-height: 0px;   /* идва от JS SizeChanged */
   --font-size: 16px;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -187,3 +191,117 @@
 html {
   font-size: var(--font-size);
 }
+
+/* ===========================
+   Dark-only compatibility layer
+   =========================== */
+
+.dark {
+  /* фон + общ текст (ако някъде остава светъл) */
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Фонове, които в light са "твърдо светли" */
+.dark .bg-white         { background-color: var(--card) !important; }
+.dark .bg-slate-50      { background-color: var(--background) !important; }
+.dark .bg-slate-100     { background-color: color-mix(in oklab, var(--foreground) 10%, var(--background)) !important; }
+@supports not (color: color-mix(in oklab, white, black)) {
+  .dark .bg-slate-100   { background-color: #0f172a !important; } /* fallback */
+}
+
+/* Бордери */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-gray-200  { border-color: var(--border) !important; }
+
+/* Текст (лош контраст → към предвидените токени) */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-gray-800    { color: var(--foreground) !important; }
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-gray-500,
+.dark .text-gray-600    { color: var(--muted-foreground) !important; }
+
+/* Placeholder-и в инпути */
+.dark ::placeholder { color: var(--muted-foreground) !important; }
+
+/* Инпути/textarea фон (ако някъде е останал светъл) */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--input) !important;
+  color: var(--foreground) !important;
+  border-color: var(--input) !important;
+}
+
+/* Header / Bottom nav – ако са с bg-white */
+.dark header,
+.dark .app-header        { background-color: var(--card) !important; color: var(--card-foreground) !important; border-color: var(--border) !important; }
+.dark nav,
+.dark .bottom-nav,
+.dark .app-bottomnav     { background-color: var(--card) !important; color: var(--card-foreground) !important; border-color: var(--border) !important; }
+
+/* „Карти“/контейнери, които са били bg-white */
+.dark .card,
+.dark .panel,
+.dark .box,
+.dark .content-block {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Цветните кутии от „Информация“ – тъмен, но четим вариант */
+.dark .bg-blue-50   { background-color: color-mix(in oklab, var(--color-blue-500) 18%, transparent) !important; color: color-mix(in oklab, var(--color-blue-500) 85%, white) !important; border-color: color-mix(in oklab, var(--color-blue-500) 45%, transparent) !important; }
+.dark .bg-green-50  { background-color: color-mix(in oklab, var(--color-green-900) 22%, transparent) !important; color: #b7f0c2 !important; border-color: color-mix(in oklab, var(--color-green-900) 50%, transparent) !important; }
+.dark .bg-orange-50 { background-color: color-mix(in oklab, var(--color-orange-900) 20%, transparent) !important; color: #ffd7a3 !important; border-color: color-mix(in oklab, var(--color-orange-900) 45%, transparent) !important; }
+.dark .bg-red-50    { background-color: color-mix(in oklab, var(--color-red-900) 18%, transparent) !important; color: #fbb8b8 !important; border-color: color-mix(in oklab, var(--color-red-900) 45%, transparent) !important; }
+
+/* Fallback, ако color-mix не се поддържа */
+@supports not (color: color-mix(in oklab, white, black)) {
+  .dark .bg-blue-50   { background-color: rgba(59,130,246,.16) !important; color: #bfdbfe !important; border-color: rgba(59,130,246,.45) !important; } /* blue-500 */
+  .dark .bg-green-50  { background-color: rgba(22,163,74,.18) !important; color: #bbf7d0 !important; border-color: rgba(22,163,74,.5) !important; } /* green-600 */
+  .dark .bg-orange-50 { background-color: rgba(245,158,11,.18) !important; color: #fed7aa !important; border-color: rgba(245,158,11,.45) !important; } /* amber-500 */
+  .dark .bg-red-50    { background-color: rgba(239,68,68,.16) !important; color: #fecaca !important; border-color: rgba(239,68,68,.45) !important; } /* red-500 */
+}
+
+.dark .border-red-200,
+.dark .border-red-300 { border-color: #8d0505 !important; }        /* red-700 */
+.dark .text-red-600   { color: #fca5a5 !important; }                /* red-300/400 за контраст */
+.dark .bg-red-50      { background-color: rgba(239,68,68,.12) !important; } /* лек тъмен фон */
+
+.dark .border-blue-200,
+.dark .border-blue-300 { border-color: #1d4ed8 !important; }        /* blue-700 */
+.dark .text-blue-600,
+.dark .text-blue-500   { color: #60a5fa !important; }                /* blue-400 за четим текст */
+.dark .bg-blue-50      { background-color: rgba(59,130,246,.16) !important; }
+
+.dark .bg-slate-100 { background-color: color-mix(in oklab, var(--foreground) 10%, var(--background)) !important; }
+.dark .bg-slate-200 { background-color: color-mix(in oklab, var(--foreground) 14%, var(--background)) !important; }
+.dark .hover\:bg-slate-200:hover { background-color: color-mix(in oklab, var(--foreground) 18%, var(--background)) !important; }
+@supports not (color: color-mix(in oklab, white, black)) {
+  .dark .bg-slate-100 { background-color: #0f172a !important; } /* fallback */
+  .dark .bg-slate-200 { background-color: #111827 !important; }
+  .dark .hover\:bg-slate-200:hover { background-color: #1f2937 !important; }
+}
+
+.dark .text-amber-600 { color: #fbbf24 !important; }                /* за „Карта“/жълти акценти */
+.dark .border-amber-200 { border-color: #b45309 !important; }       /* amber-700 */
+.dark .bg-amber-50 { background-color: rgba(245,158,11,.18) !important; }
+
+.dark .text-slate-500,
+.dark .text-gray-500 { color: var(--muted-foreground) !important; } /* „Сподели/Копирай“ неактивни */
+
+.dark .bg-purple-50    { background-color: rgba(147,51,234,.18) !important; }
+.dark .border-purple-200 { border-color: #6b21a8 !important; }      /* purple-800/700 */
+.dark .text-purple-600 { color: #c4b5fd !important; }               /* purple-300/200 за четимост */
+
+.dark .border-slate-200,
+.dark .border-gray-200 { border-color: var(--border) !important; }
+
+.dark .safe-top img { opacity: 0.5; }
+

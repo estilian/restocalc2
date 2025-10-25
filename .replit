@@ -4,6 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
+packages = ["solana-cli", "zulu17", "wget", "unzip", "file", "sdkmanager"]
 
 [workflows]
 runButton = "Project"
@@ -36,10 +37,6 @@ externalPort = 80
 [[ports]]
 localPort = 35521
 externalPort = 3000
-
-[[ports]]
-localPort = 43611
-externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RestoCalc - калкулатор за ресто в евро при двойно валутиране</string>
+    <string name="title_activity_main">RestoCalc</string>
+    <string name="package_name">com.estilian.restocalc</string>
+    <string name="custom_url_scheme">com.estilian.restocalc</string>
+    <string name="admob_app_id">ca-app-pub-4675518894512456~7430894659</string>
+</resources>

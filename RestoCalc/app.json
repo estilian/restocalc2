@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "a91da323-eb0d-4824-b942-685c768a00f0"
+      }
+    },
+    "android": {
+      "package": "com.estilian.restocalc"
+    }
+  }
+}

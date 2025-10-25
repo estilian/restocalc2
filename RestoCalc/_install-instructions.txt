@@ -1,0 +1,94 @@
+# Почистване на build gradlew
+
+./gradlew clean
+rm -rf ~/.gradle/caches/*/transforms ~/.gradle/caches/journal-1 ~/.gradle/daemon app/build
+
+-----------------------------------------------------------------------------
+
+# Чиста инсталация на Java 21:
+cd ~
+rm -rf jdk && mkdir -p jdk && cd jdk
+
+curl -fL -o jdk21.tar.gz https://cdn.azul.com/zulu/bin/zulu21.38.21-ca-jdk21.0.5-linux_x64.tar.gz
+file jdk21.tar.gz
+ls -lh jdk21.tar.gz
+
+tar -tzf jdk21.tar.gz | head
+
+tar -xzf jdk21.tar.gz
+
+JDK_DIR="$(ls -1d "$HOME/jdk"/zulu21* | head -n1)"
+echo "Detected JDK_DIR=$JDK_DIR"
+test -x "$JDK_DIR/bin/java" && "$JDK_DIR/bin/java" -version
+
+export JAVA_HOME="$JDK_DIR"
+export PATH="$JAVA_HOME/bin:$PATH"
+which -a java
+java -version
+
+------------------------------------------------------------------------------
+
+# Ако при Build върне грешка, че не открива Java:
+export JAVA_HOME="/home/runner/jdk/zulu21.38.21-ca-jdk21.0.5-linux_x64"
+export PATH="$JAVA_HOME/bin:$PATH"
+which -a java
+java -version
+
+# кажи на Gradle да използва същото
+# (можеш и да изтриеш грешния ред и да добавиш коректния)
+sed -i '/^org\.gradle\.java\.home=/d' ~/workspace/RestoCalc/android/gradle.properties
+echo "org.gradle.java.home=$JAVA_HOME" >> ~/workspace/RestoCalc/android/gradle.properties
+
+-----------------------------------------------------------------------------
+
+# ако си в нова сесия или при build даде грешка с SDK:
+
+# 1) Посочи SDK пътя в env (за тази сесия)
+export ANDROID_SDK_ROOT="$HOME/android-sdk"
+export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+
+# 2) Приеми лицензите (ако не си го правил в тази сесия)
+yes | sdkmanager --licenses
+
+# 3) Увери се, че нужните пакети са налични
+sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
+
+# 4) Напиши пътя и в проекта (локален файл за Gradle)
+echo "sdk.dir=$ANDROID_SDK_ROOT" > "$HOME/workspace/RestoCalc/android/local.properties"
+
+------------------------------------------------------------------------------
+
+cd ~/workspace/RestoCalc
+npm run build && npx cap copy && npx cap sync
+
+cd android
+./gradlew --no-daemon assembleDebug    # APK за тест
+# ./gradlew --no-daemon --stacktrace --info assembleDebug - повече info при неуспешен build
+
+# Output of APK: android/app/build/outputs/apk/debug/app-debug.apk
+# (след подписване)
+./gradlew --no-daemon bundleRelease    # AAB за Play Store
+
+----------------------------------------------------------------------------
+Подписване преди AAB генериране:
+
+1. Създай keystore (на твоя машина/там, където билдваш):
+keytool -genkeypair -v -keystore restocalc.keystore -alias restocalc \
+  -keyalg RSA -keysize 2048 -validity 9125
+
+2. Сложи файла в android/app/keystore/restocalc.keystore (не го комитвай публично).
+
+3. В android/gradle.properties:
+RELEASE_STORE_FILE=app/keystore/restocalc.keystore
+RELEASE_STORE_PASSWORD=********
+RELEASE_KEY_ALIAS=restocalc
+RELEASE_KEY_PASSWORD=********
+
+4. В android/app/build.gradle(.kts) увери се, че buildTypes.release ползва signingConfig (както вече ти писах по-рано).
+
+5. Билд:
+cd android
+./gradlew --no-daemon bundleRelease
+
+→ получаваш app-release.aab за Play.
+Силно препоръчително: активирай Play App Signing в Play Console – да пазят те крайния ключ за дистрибуция. Ти пазиш само upload keystore (този отгоре).
