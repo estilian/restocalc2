@@ -6,7 +6,6 @@ import InfoScreen from './components/InfoScreen';
 import { loadSettings, getEffectiveTheme } from './utils/settings';
 
 import { Capacitor } from '@capacitor/core';
-import { AdMobPlus } from '@admob-plus/capacitor';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'calculator' | 'history' | 'info'>('calculator');
@@ -18,11 +17,6 @@ export default function App() {
     }, 0);
   };
 
-  useEffect(() => {
-    if (Capacitor.getPlatform() !== 'android') return;
-    AdMobPlus.start().catch((e) => console.warn('AdMobPlus.start() failed:', e));
-  }, []);
-  
   useEffect(() => {
     const settings = loadSettings(); // { theme: 'auto' | 'light' | 'dark', ... }
 
