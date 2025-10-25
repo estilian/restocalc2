@@ -10,6 +10,7 @@ import FullScreenChange from './FullScreenChange';
 import AppHeader from './AppHeader';
 import { loadSettings } from '../utils/settings';
 import { addHistoryItem, getCurrentLocation } from '../utils/history';
+import { Keyboard } from '@capacitor/keyboard';
 
 const EXCHANGE_RATE = 1.95583;
 
@@ -29,6 +30,7 @@ export default function CalculatorScreen() {
   useEffect(() => {
     if (dueEURInputRef.current) {
       dueEURInputRef.current.focus();
+      Keyboard.show();
     }
   }, []);
 

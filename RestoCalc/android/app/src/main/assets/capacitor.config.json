@@ -1,0 +1,9 @@
+{
+	"appId": "com.estilian.restocalc",
+	"appName": "RestoCalc",
+	"webDir": "build",
+	"bundledWebRuntime": false,
+	"server": {
+		"androidScheme": "https"
+	}
+}
