@@ -1,3 +1,5 @@
+import { Geolocation } from '@capacitor/geolocation';
+
 export interface HistoryItem {
   id: string;
   date: string;
@@ -108,29 +110,24 @@ export const clearHistory = (): void => {
   saveHistory([]);
 };
 
-export const getCurrentLocation = (): Promise<{ lat: number; lng: number } | null> => {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      resolve(null);
-      return;
+export const getCurrentLocation = async (): Promise<{ lat: number; lng: number } | null> => {
+  try {
+    const permissions = await Geolocation.checkPermissions();
+    if (permissions.location !== 'granted' && permissions.coarseLocation !== 'granted') {
+      const permissionStatus = await Geolocation.requestPermissions();
+      if (permissionStatus.location !== 'granted' && permissionStatus.coarseLocation !== 'granted') {
+        console.error('Location permission not granted.');
+        return null;
+      }
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-      },
-      (error) => {
-        console.error('Failed to get location:', error);
-        resolve(null);
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 5000,
-        maximumAge: 60000,
-      }
-    );
-  });
+    const position = await Geolocation.getCurrentPosition();
+    return {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+    };
+  } catch (error) {
+    console.error('Failed to get location:', error);
+    return null;
+  }
 };
