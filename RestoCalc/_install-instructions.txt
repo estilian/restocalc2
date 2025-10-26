@@ -58,6 +58,10 @@ echo "sdk.dir=$ANDROID_SDK_ROOT" > "$HOME/workspace/RestoCalc/android/local.prop
 
 ------------------------------------------------------------------------------
 
+cd ~/workspace
+rm -rf RestoCalc/build RestoCalc/.vite
+rm -rf RestoCalc/node_modules RestoCalc/package-lock.json
+
 cd ~/workspace/RestoCalc
 npm run build && npx cap copy && npx cap sync
 
