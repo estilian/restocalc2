@@ -306,7 +306,7 @@ export default function HistoryScreen({ goToSettings }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Отказ</n            </AlertDialogCancel>
+            <AlertDialogCancel>Отказ</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteItemId && deleteItem(deleteItemId)}
               className="bg-red-600 hover:bg-red-700"
