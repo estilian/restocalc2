@@ -4,6 +4,6 @@
 	"webDir": "build",
 	"bundledWebRuntime": false,
 	"server": {
-		"androidScheme": "http"
+		"androidScheme": "https"
 	}
 }
