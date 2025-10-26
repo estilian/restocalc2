@@ -51,7 +51,7 @@ export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platfo
 yes | sdkmanager --licenses
 
 # 3) Увери се, че нужните пакети са налични
-sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35"
+sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35" "platforms;android-36"
 
 # 4) Напиши пътя и в проекта (локален файл за Gradle)
 echo "sdk.dir=$ANDROID_SDK_ROOT" > "$HOME/workspace/RestoCalc/android/local.properties"
