@@ -61,7 +61,7 @@ echo "sdk.dir=$ANDROID_SDK_ROOT" > "$HOME/workspace/RestoCalc/android/local.prop
 cd ~/workspace/RestoCalc
 npm run build && npx cap copy && npx cap sync
 
-cd android
+cd ~/workspace/RestoCalc/android
 ./gradlew --no-daemon assembleDebug    # APK за тест
 # ./gradlew --no-daemon --stacktrace --info assembleDebug - повече info при неуспешен build
 
