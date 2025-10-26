@@ -53,9 +53,6 @@
     build: {
       target: 'esnext',
       outDir: 'build',
-      rollupOptions: {
-        external: ['@capacitor/geolocation', '@capacitor/keyboard'],
-      },
     },
     server: {
       host: '0.0.0.0',
