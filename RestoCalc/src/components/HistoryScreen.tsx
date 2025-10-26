@@ -16,6 +16,7 @@ import {
 import AppHeader from './AppHeader';
 import { loadHistory, saveHistory, type HistoryItem } from '../utils/history';
 import { loadSettings } from '../utils/settings';
+import { Share } from '@capacitor/share';
 
 const EXCHANGE_RATE = 1.95583;
 const ITEMS_PER_PAGE = 10;
@@ -99,14 +100,18 @@ export default function HistoryScreen({ goToSettings }: Props) {
     const text = formatShareText(item);
 
     try {
-      if (navigator.share) {
-        await navigator.share({ text });
-      } else {
-        toast.info('Споделянето не е налично');
-      }
+      await Share.share({ text });
     } catch (error) {
-      // User cancelled or error occurred
-      console.log('Share cancelled or failed:', error);
+      // Fallback to navigator.share if Capacitor API fails
+      try {
+        if (navigator.share) {
+          await navigator.share({ text });
+        } else {
+          toast.info('Споделянето не е налично');
+        }
+      } catch (error) {
+        console.log('Share cancelled or failed:', error);
+      }
     }
   };
 
@@ -301,7 +306,7 @@ export default function HistoryScreen({ goToSettings }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Отказ</AlertDialogCancel>
+            <AlertDialogCancel>Отказ</n            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteItemId && deleteItem(deleteItemId)}
               className="bg-red-600 hover:bg-red-700"

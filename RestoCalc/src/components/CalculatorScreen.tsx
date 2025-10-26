@@ -24,11 +24,15 @@ export default function CalculatorScreen() {
   const [showFullScreen, setShowFullScreen] = useState(false);
 
   const dueEURInputRef = React.useRef<HTMLInputElement>(null);
+  const dueBGNInputRef = React.useRef<HTMLInputElement>(null);
+  const paidEURInputRef = React.useRef<HTMLInputElement>(null);
+  const paidBGNInputRef = React.useRef<HTMLInputElement>(null);
 
   // Auto-focus on first input when component mounts
   useEffect(() => {
     if (dueEURInputRef.current) {
       dueEURInputRef.current.focus();
+      dueEURInputRef.current.click();
     }
   }, []);
 
@@ -148,6 +152,17 @@ export default function CalculatorScreen() {
     setDueBGN('');
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, nextFieldRef: React.RefObject<HTMLInputElement> | null) => {
+    if (e.key === 'Enter') {
+      if (nextFieldRef && nextFieldRef.current) {
+        nextFieldRef.current.focus();
+      } else if (nextFieldRef === null) {
+        e.currentTarget.blur();
+        handlePaidBlur();
+      }
+    }
+  };
+
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
@@ -174,6 +189,7 @@ export default function CalculatorScreen() {
                     setDueEUR(normalized);
                     setDueBGN('');
                   }}
+                  onKeyDown={(e) => handleKeyDown(e, dueBGNInputRef)}
                   className="pr-8"
                 />
                 {dueEUR && (
@@ -191,6 +207,7 @@ export default function CalculatorScreen() {
               <Label htmlFor="due-bgn" className="text-slate-600">В лева (BGN)</Label>
               <div className="relative">
                 <Input
+                  ref={dueBGNInputRef}
                   id="due-bgn"
                   type="text"
                   inputMode="decimal"
@@ -201,6 +218,7 @@ export default function CalculatorScreen() {
                     setDueBGN(normalized);
                     setDueEUR('');
                   }}
+                  onKeyDown={(e) => handleKeyDown(e, paidEURInputRef)}
                   className="pr-8"
                 />
                 {dueBGN && (
@@ -243,12 +261,14 @@ export default function CalculatorScreen() {
               </div>
               <div className="relative">
                 <Input
+                  ref={paidEURInputRef}
                   id="paid-eur"
                   type="text"
                   inputMode="decimal"
                   placeholder="0.00"
                   value={paidEUR}
                   onChange={(e) => setPaidEUR(normalizeDecimal(e.target.value))}
+                  onKeyDown={(e) => handleKeyDown(e, paidBGNInputRef)}
                   onBlur={handlePaidBlur}
                   disabled={!hasDueAmount}
                   className="pr-8"
@@ -278,12 +298,14 @@ export default function CalculatorScreen() {
               </div>
               <div className="relative">
                 <Input
+                  ref={paidBGNInputRef}
                   id="paid-bgn"
                   type="text"
                   inputMode="decimal"
                   placeholder="0.00"
                   value={paidBGN}
                   onChange={(e) => setPaidBGN(normalizeDecimal(e.target.value))}
+                  onKeyDown={(e) => handleKeyDown(e, null)}
                   onBlur={handlePaidBlur}
                   disabled={!hasDueAmount}
                   className="pr-8"

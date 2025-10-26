@@ -1,5 +1,1 @@
-modules = ["nodejs-20"]
-
-[nix]
-channel = "stable-25_05"
-packages = ["file", "sdkmanager"]
+run = "cd RestoCalc && npm run dev"

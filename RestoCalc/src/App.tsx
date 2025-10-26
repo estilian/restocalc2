@@ -39,7 +39,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col max-w-md mx-auto">
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto pb-20">
         {activeTab === 'calculator' && <CalculatorScreen />}
         {activeTab === 'history' && <HistoryScreen goToSettings={goToSettings} />}
         {activeTab === 'info' && <InfoScreen />}
