@@ -30,12 +30,14 @@ export default function CalculatorScreen() {
 
   // Auto-focus on first input when component mounts
   useEffect(() => {
-    if (dueEURInputRef.current) {
-      dueEURInputRef.current.focus();
-      dueEURInputRef.current.click();
-    }
+    const timer = setTimeout(() => {
+      if (dueEURInputRef.current) {
+        dueEURInputRef.current.focus();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
-
+  
   // Auto-convert between currencies for due amount
   useEffect(() => {
     if (dueEUR && !dueBGN) {
