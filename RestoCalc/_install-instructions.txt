@@ -43,18 +43,37 @@ echo "org.gradle.java.home=$JAVA_HOME" >> ~/workspace/RestoCalc/android/gradle.p
 
 # ако си в нова сесия или при build даде грешка с SDK:
 
-# 1) Посочи SDK пътя в env (за тази сесия)
+# 0) Базови променливи
 export ANDROID_SDK_ROOT="$HOME/android-sdk"
-export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+export SDK_TOOLS_DIR="$ANDROID_SDK_ROOT/cmdline-tools"
+mkdir -p "$SDK_TOOLS_DIR"
 
-# 2) Приеми лицензите (ако не си го правил в тази сесия)
-yes | sdkmanager --licenses
+# 1) Изтегли commandline-tools (Linux)
+# Ако линкът се промени, виж бележката под скрипта.
+cd /tmp
+curl -L -o commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
 
-# 3) Увери се, че нужните пакети са налични
-sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "platforms;android-35" "platforms;android-36"
+# 2) Разархивирай и премести в правилната структура: .../cmdline-tools/latest/...
+unzip -q commandlinetools.zip -d /tmp/adt
+mkdir -p "$SDK_TOOLS_DIR/latest"
+# Папката в .zip се казва "cmdline-tools" и вътре има bin/, lib/, пр.
+# Преместваме съдържанието ѝ в .../latest/
+mv /tmp/adt/cmdline-tools/* "$SDK_TOOLS_DIR/latest/"
 
-# 4) Напиши пътя и в проекта (локален файл за Gradle)
-echo "sdk.dir=$ANDROID_SDK_ROOT" > "$HOME/workspace/RestoCalc/android/local.properties"
+# 3) Добави tools към PATH за текущата сесия
+export PATH="$SDK_TOOLS_DIR/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+
+# 4) Бърза проверка
+sdkmanager --version
+
+# 5) Приеми лицензите (неинтерактивно)
+yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+
+# 6) Инсталирай минимум нужните пакети
+sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+  "platform-tools" \
+  "build-tools;35.0.0" \
+  "platforms;android-35"
 
 ------------------------------------------------------------------------------
 
