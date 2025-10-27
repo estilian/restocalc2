@@ -80,7 +80,7 @@ export default function InfoScreen() {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <AppHeader title="Информация" />
+      {/* <AppHeader title="Информация" /> */}
 
       {/* Tabs */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="w-full">

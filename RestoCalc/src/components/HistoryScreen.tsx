@@ -145,7 +145,7 @@ export default function HistoryScreen({ goToSettings }: Props) {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <AppHeader title="История на изчисленията" />
+      {/* <AppHeader title="История на изчисленията" /> */}
 
       {/* Банер при изключена история */}
       {!historyEnabled && (

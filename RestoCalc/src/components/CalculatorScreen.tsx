@@ -34,7 +34,7 @@ export default function CalculatorScreen() {
       if (dueEURInputRef.current) {
         dueEURInputRef.current.focus();
       }
-    }, 1000);
+    }, 100);
     return () => clearTimeout(timer);
   }, []);
   
@@ -257,8 +257,8 @@ export default function CalculatorScreen() {
     ) : (
       <Card className="bg-slate-50 border border-slate-200 shadow-sm">
         <CardContent className="p-4">
-          <p className="text-xs text-slate-600 leading-relaxed p-1">
-            Посочете дължимата сума в едно от двете полета - лева или евро, като другото ще се изчисли автоматично. След това въведете колко плащате в лева, в евро или в комбинация от двете валути. Калкулаторът автоматично ще изчисли рестото в евро.
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Посочете дължимата сума в едно от двете полета - лева или евро, като другото ще се изчисли автоматично. След това въведете колко плащате в лева, в евро или в комбинация от двете валути. Калкулаторът ще изчисли рестото в евро.
           </p>
         </CardContent>
       </Card>
