@@ -17,6 +17,7 @@ import {
 import { ExternalLink } from 'lucide-react';
 import AppHeader from './AppHeader';
 import { loadSettings, saveSettings, type ThemeMode, type Settings } from '../utils/settings';
+import { Geolocation } from '@capacitor/geolocation';
 
 export default function InfoScreen() {
   const [settings, setSettings] = useState<Settings>(loadSettings());
@@ -45,11 +46,28 @@ export default function InfoScreen() {
     setShowRestartDialog(true);
   };
 
-  const handleSaveLocationChange = (checked: boolean) => {
-    const newSettings = { ...settings, saveLocation: checked };
-    setSettings(newSettings);
-    setPendingSettings(newSettings);
-    setShowRestartDialog(true);
+  const handleSaveLocationChange = async (checked: boolean) => {
+    if (checked) {
+      try {
+        const permissions = await Geolocation.requestPermissions();
+        if (permissions.location === 'granted') {
+          const newSettings = { ...settings, saveLocation: true };
+          setSettings(newSettings);
+          setPendingSettings(newSettings);
+          setShowRestartDialog(true);
+        } else {
+          // Handle permission denial gracefully, maybe show a message to the user
+          console.log('Location permission denied');
+        }
+      } catch (error) {
+        console.error('Error requesting location permissions:', error);
+      }
+    } else {
+      const newSettings = { ...settings, saveLocation: false };
+      setSettings(newSettings);
+      setPendingSettings(newSettings);
+      setShowRestartDialog(true);
+    }
   };
 
   const handleConfirmRestart = () => {
