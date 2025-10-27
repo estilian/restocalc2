@@ -96,8 +96,8 @@ export default function InfoScreen() {
                   
                   <div className="space-y-3">
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <p className="text-blue-900 mb-1"><strong>1. Въведете дължимата сума</strong></p>
-                      <p className="text-blue-800 text-xs">
+                      <p className="text-blue-500 mb-1"><strong>1. Въведете дължимата сума</strong></p>
+                      <p className="text-blue-300 text-xs">
                         Посочете сумата, която трябва да платите – в лева ИЛИ в евро. 
                         Калкулаторът автоматично конвертира по курса 1 EUR = 1.95583 BGN.
                         Можете да използвате както точка, така и запетая за десетичен разделител.
@@ -105,8 +105,8 @@ export default function InfoScreen() {
                     </div>
 
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                      <p className="text-green-900 mb-1"><strong>2. Посочете колко плащате</strong></p>
-                      <p className="text-green-800 text-xs">
+                      <p className="text-green-700 mb-1"><strong>2. Посочете колко плащате</strong></p>
+                      <p className="text-green-500 text-xs">
                         Въведете сумата, която давате – в лева, в евро или комбинация от двете валути. 
                         Използвайте бутона <strong>"избери"</strong> до всяко поле, за да изберете 
                         конкретни банкноти и монети, които ще дадете.
@@ -114,11 +114,11 @@ export default function InfoScreen() {
                     </div>
 
                     <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                      <p className="text-orange-900 mb-1"><strong>3. Вижте рестото веднага</strong></p>
-                      <p className="text-orange-800 text-xs">
+                      <p className="text-orange-700 mb-1"><strong>3. Вижте рестото веднага</strong></p>
+                      <p className="text-orange-400 text-xs">
                         Калкулаторът моментално показва:
                       </p>
-                      <ul className="text-orange-800 text-xs list-disc list-inside mt-1 space-y-0.5">
+                      <ul className="text-orange-400 text-xs list-disc list-inside mt-1 space-y-0.5">
                         <li>Дали сумата е недостатъчна (и колко недостига)</li>
                         <li>Дали сумата е точна (няма ресто)</li>
                         <li>Колко е рестото в евро (при надплащане)</li>
@@ -126,8 +126,8 @@ export default function InfoScreen() {
                     </div>
 
                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                      <p className="text-purple-900 mb-1"><strong>4. Покажете на касиера</strong></p>
-                      <p className="text-purple-800 text-xs">
+                      <p className="text-purple-700 mb-1"><strong>4. Покажете на касиера</strong></p>
+                      <p className="text-purple-500 text-xs">
                         При излизане от полето за платена сума или при натискане на 
                         <strong> "Виж на цял екран"</strong>, рестото се показва с голям шрифт, 
                         подходящ за показване на касиера.
@@ -164,15 +164,15 @@ export default function InfoScreen() {
                   </p>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-blue-900 mb-1"><strong>До 31 декември 2025 г.</strong></p>
-                    <p className="text-blue-800 text-xs">
+                    <p className="text-blue-500 mb-1"><strong>До 31 декември 2025 г.</strong></p>
+                    <p className="text-blue-300 text-xs">
                       Плащанията се приемат <strong>САМО в левове</strong> – не може да се плаща в евро.
                     </p>
                   </div>
 
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <p className="text-green-900 mb-1"><strong>От 1 януари 2026 г.</strong></p>
-                    <p className="text-green-800 text-xs">
+                    <p className="text-green-700 mb-1"><strong>От 1 януари 2026 г.</strong></p>
+                    <p className="text-green-500 text-xs">
                       Започва използването на <strong>двете валути</strong>. Потребителите могат 
                       да плащат: само в левове, само в евро или <strong>смесено в двете валути</strong>.
                     </p>
