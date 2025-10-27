@@ -4,3 +4,6 @@ modules = ["nodejs-20"]
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[nix]
+packages = ["file"]

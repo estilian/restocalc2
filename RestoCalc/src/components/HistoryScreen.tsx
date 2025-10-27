@@ -88,12 +88,13 @@ export default function HistoryScreen({ goToSettings }: Props) {
     const dueBGN = item.dueBGN > 0 ? item.dueBGN : item.dueEUR * EXCHANGE_RATE;
 
     return `Данни за плащане в две валути и ресто в евро
-Дата на събитие: ${item.time} ${item.date}
-Дължима сума: ${dueEUR.toFixed(2)} EUR или ${dueBGN.toFixed(2)} BGN
-Платено в евро: ${item.paidEUR.toFixed(2)} EUR
-Платено в лева: ${item.paidBGN.toFixed(2)} BGN
 ---
-Ресто за получаване: ${item.changeEUR.toFixed(2)} EUR`;
+Дата на събитие: ${item.time} ${item.date}
+Дължима сума: ${dueEUR.toFixed(2)} € или ${dueBGN.toFixed(2)} лв.
+Платено в евро: ${item.paidEUR.toFixed(2)} €
+Платено в лева: ${item.paidBGN.toFixed(2)} лв.
+---
+Ресто за получаване: ${item.changeEUR.toFixed(2)} €`;
   };
 
   const shareItem = async (item: HistoryItem) => {
@@ -214,18 +215,18 @@ export default function HistoryScreen({ goToSettings }: Props) {
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-slate-600">Дължимо:</span>
                         <span className="text-slate-900">
-                          {dueEUR.toFixed(2)} EUR или {dueBGN.toFixed(2)} BGN
+                          {dueEUR.toFixed(2)} € или {dueBGN.toFixed(2)} лв.
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-slate-600">Платено:</span>
                         <span className="text-slate-900">
-                          {item.paidEUR.toFixed(2)} EUR + {item.paidBGN.toFixed(2)} BGN
+                          {item.paidEUR.toFixed(2)} € + {item.paidBGN.toFixed(2)} лв.
                         </span>
                       </div>
                       <div className="flex items-center justify-between bg-blue-50 rounded-lg p-2 border border-blue-200">
                         <span className="text-sm text-blue-700">Ресто:</span>
-                        <span className="text-blue-600">{item.changeEUR.toFixed(2)} EUR</span>
+                        <span className="text-blue-600">{item.changeEUR.toFixed(2)} €</span>
                       </div>
                     </div>
 

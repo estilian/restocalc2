@@ -34,7 +34,7 @@ export default function CalculatorScreen() {
       if (dueEURInputRef.current) {
         dueEURInputRef.current.focus();
       }
-    }, 100);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
   
@@ -181,7 +181,7 @@ export default function CalculatorScreen() {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <AppHeader title="Калкулатор за ресто (BGN/EUR)" />
+      {/* <AppHeader title="Калкулатор за ресто (BGN/EUR)" /> */}
 
       {/* Due Amount Section */}
       <Card className="border-slate-200 shadow-sm">
@@ -191,7 +191,7 @@ export default function CalculatorScreen() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="due-eur" className="text-slate-600">
-                В евро (EUR)
+                В евро
               </Label>
               <div className="relative">
                 <Input
@@ -222,7 +222,7 @@ export default function CalculatorScreen() {
 
             <div className="space-y-2">
               <Label htmlFor="due-bgn" className="text-slate-600">
-                В лева (BGN)
+                В лева
               </Label>
               <div className="relative">
                 <Input
@@ -271,7 +271,7 @@ export default function CalculatorScreen() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="paid-eur" className="text-slate-600">
-                  Евро (EUR)
+                  В евро
                 </Label>
                 <button
                   onClick={() => setShowEURModal(true)}
@@ -310,7 +310,7 @@ export default function CalculatorScreen() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="paid-bgn" className="text-slate-600">
-                  Лева (BGN)
+                  В лева
                 </Label>
                 <button
                   onClick={() => setShowBGNModal(true)}
@@ -355,14 +355,14 @@ export default function CalculatorScreen() {
                 variant="outline"
                 className="border-blue-300 text-blue-600 hover:bg-blue-50"
               >
-                + {totals.remainingEUR.toFixed(2)} EUR
+                + {totals.remainingEUR.toFixed(2)} €
               </Button>
               <Button
                 onClick={() => addQuickPay("BGN")}
                 variant="outline"
                 className="border-blue-300 text-blue-600 hover:bg-blue-50"
               >
-                + {(totals.remainingEUR * EXCHANGE_RATE).toFixed(2)} BGN
+                + {(totals.remainingEUR * EXCHANGE_RATE).toFixed(2)} лв.
               </Button>
             </div>
           )}
@@ -385,13 +385,13 @@ export default function CalculatorScreen() {
               <div className="space-y-2">
                 <p className="text-red-700">Недостатъчна сума</p>
                 <p className="text-sm text-red-600">
-                  Недостигат:{" "}
+                  Не достигат: {" "}
                   <span className="font-medium">
-                    {totals.remainingEUR.toFixed(2)} EUR
+                    {totals.remainingEUR.toFixed(2)} €
                   </span>
                   {" или "}
                   <span className="font-medium">
-                    {(totals.remainingEUR * EXCHANGE_RATE).toFixed(2)} BGN
+                    {(totals.remainingEUR * EXCHANGE_RATE).toFixed(2)} лв.
                   </span>
                 </p>
               </div>
@@ -412,7 +412,7 @@ export default function CalculatorScreen() {
                     Ресто за връщане:
                   </p>
                   <p className="text-blue-600">
-                    {totals.changeInEUR.toFixed(2)} EUR
+                    {totals.changeInEUR.toFixed(2)} €
                   </p>
                 </div>
               </div>
