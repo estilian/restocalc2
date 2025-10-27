@@ -17,7 +17,7 @@ import {
 import { ExternalLink } from 'lucide-react';
 import AppHeader from './AppHeader';
 import { loadSettings, saveSettings, type ThemeMode, type Settings } from '../utils/settings';
-import { Geolocation } from '@capacitor/geolocation';
+import { getCurrentLocation } from '../utils/history';
 
 export default function InfoScreen() {
   const [settings, setSettings] = useState<Settings>(loadSettings());
@@ -31,7 +31,7 @@ export default function InfoScreen() {
     window.addEventListener('restocalc:open-settings', openSettings);
     return () => window.removeEventListener('restocalc:open-settings', openSettings);
   }, []);
-  
+
   const handleThemeChange = (newTheme: ThemeMode) => {
     const newSettings = { ...settings, theme: newTheme };
     setSettings(newSettings);
@@ -48,19 +48,12 @@ export default function InfoScreen() {
 
   const handleSaveLocationChange = async (checked: boolean) => {
     if (checked) {
-      try {
-        const permissions = await Geolocation.requestPermissions();
-        if (permissions.location === 'granted') {
-          const newSettings = { ...settings, saveLocation: true };
-          setSettings(newSettings);
-          setPendingSettings(newSettings);
-          setShowRestartDialog(true);
-        } else {
-          // Handle permission denial gracefully, maybe show a message to the user
-          console.log('Location permission denied');
-        }
-      } catch (error) {
-        console.error('Error requesting location permissions:', error);
+      const location = await getCurrentLocation();
+      if (location) {
+        const newSettings = { ...settings, saveLocation: true };
+        setSettings(newSettings);
+        setPendingSettings(newSettings);
+        setShowRestartDialog(true);
       }
     } else {
       const newSettings = { ...settings, saveLocation: false };
@@ -109,7 +102,7 @@ export default function InfoScreen() {
                   </p>
 
                   <h3 className="text-slate-900 mt-4 mb-2">Стъпка по стъпка:</h3>
-                  
+
                   <div className="space-y-3">
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                       <p className="text-blue-500 mb-1"><strong>1. Въведете дължимата сума</strong></p>

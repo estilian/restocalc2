@@ -183,6 +183,87 @@ export default function CalculatorScreen() {
       {/* Header */}
       {/* <AppHeader title="Калкулатор за ресто (BGN/EUR)" /> */}
 
+      {/* Status Panel */}
+      {(dueEUR || dueBGN) ? (
+        <Card
+          className={`border-2 shadow-md ${
+            totals.status === "insufficient"
+              ? "border-red-300 bg-red-50"
+              : totals.status === "exact"
+                ? "border-green-300 bg-green-50"
+                : "border-blue-300 bg-blue-50"
+          }`}
+        >
+          <CardContent className="p-4 space-y-3">
+            {totals.status === "insufficient" && (
+              <div className="space-y-2">
+                <p className="text-red-700">Недостатъчна сума</p>
+                <p className="text-sm text-red-600">
+                  Не достигат: {" "}
+                  <span className="font-medium">
+                    {totals.remainingEUR.toFixed(2)} €
+                  </span>
+                  {" или "}
+                  <span className="font-medium">
+                    {(totals.remainingEUR * EXCHANGE_RATE).toFixed(2)} лв.
+                  </span>
+                </p>
+              </div>
+            )}
+
+            {totals.status === "exact" && (
+              <div>
+                <p className="text-green-700">Сумата е точна</p>
+                <p className="text-sm text-green-600">Няма ресто</p>
+              </div>
+            )}
+
+            {totals.status === "change" && (
+              <div className="space-y-2">
+                <p className="text-blue-700">Има ресто</p>
+                <div className="bg-white rounded-lg p-3 border border-blue-200">
+                  <p className="text-sm text-slate-600 mb-1">
+                    Ресто за връщане:
+                  </p>
+                  <p className="text-blue-600">
+                    {totals.changeInEUR.toFixed(2)} €
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                onClick={async () => {
+                  await saveToHistory();
+                  setShowFullScreen(true);
+                }}
+                className="flex-1 bg-blue-500 hover:bg-blue-600"
+                disabled={totals.status !== "change"}
+              >
+                <Maximize2 className="h-4 w-4 mr-2" />
+                Виж на цял екран
+              </Button>
+              <Button
+                onClick={clearAll}
+                variant="destructive"
+                className="flex-1"
+              >
+                Изчисти
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+    ) : (
+      <Card className="bg-slate-50 border border-slate-200 shadow-sm">
+        <CardContent className="p-4">
+          <p className="text-xs text-slate-600 leading-relaxed p-1">
+            Посочете дължимата сума в едно от двете полета - лева или евро, като другото ще се изчисли автоматично. След това въведете колко плащате в лева, в евро или в комбинация от двете валути. Калкулаторът автоматично ще изчисли рестото в евро.
+          </p>
+        </CardContent>
+      </Card>
+    )}
+      
       {/* Due Amount Section */}
       <Card className="border-slate-200 shadow-sm">
         <CardContent className="p-4 space-y-4">
@@ -250,14 +331,6 @@ export default function CalculatorScreen() {
                 )}
               </div>
             </div>
-          </div>
-
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Посочете дължимата сума в едно от двете полета (лева или евро).
-              След това въведете колко плащате в една или в двете валути.
-              Калкулаторът автоматично ще изчисли рестото в евро.
-            </p>
           </div>
         </CardContent>
       </Card>
@@ -368,79 +441,6 @@ export default function CalculatorScreen() {
           )}
         </CardContent>
       </Card>
-
-      {/* Status Panel */}
-      {(dueEUR || dueBGN) && (
-        <Card
-          className={`border-2 shadow-md ${
-            totals.status === "insufficient"
-              ? "border-red-300 bg-red-50"
-              : totals.status === "exact"
-                ? "border-green-300 bg-green-50"
-                : "border-blue-300 bg-blue-50"
-          }`}
-        >
-          <CardContent className="p-4 space-y-3">
-            {totals.status === "insufficient" && (
-              <div className="space-y-2">
-                <p className="text-red-700">Недостатъчна сума</p>
-                <p className="text-sm text-red-600">
-                  Не достигат: {" "}
-                  <span className="font-medium">
-                    {totals.remainingEUR.toFixed(2)} €
-                  </span>
-                  {" или "}
-                  <span className="font-medium">
-                    {(totals.remainingEUR * EXCHANGE_RATE).toFixed(2)} лв.
-                  </span>
-                </p>
-              </div>
-            )}
-
-            {totals.status === "exact" && (
-              <div>
-                <p className="text-green-700">Сумата е точна</p>
-                <p className="text-sm text-green-600">Няма ресто</p>
-              </div>
-            )}
-
-            {totals.status === "change" && (
-              <div className="space-y-2">
-                <p className="text-blue-700">Има ресто</p>
-                <div className="bg-white rounded-lg p-3 border border-blue-200">
-                  <p className="text-sm text-slate-600 mb-1">
-                    Ресто за връщане:
-                  </p>
-                  <p className="text-blue-600">
-                    {totals.changeInEUR.toFixed(2)} €
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <Button
-                onClick={async () => {
-                  await saveToHistory();
-                  setShowFullScreen(true);
-                }}
-                className="flex-1 bg-blue-500 hover:bg-blue-600"
-                disabled={totals.status !== "change"}
-              >
-                <Maximize2 className="h-4 w-4 mr-2" />
-                Виж на цял екран
-              </Button>
-              <Button
-                onClick={clearAll}
-                variant="destructive"
-                className="flex-1"
-              >
-                Изчисти
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Modals */}
       <CurrencySelectModal
