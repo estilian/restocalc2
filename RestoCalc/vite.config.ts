@@ -53,6 +53,7 @@
     build: {
       target: 'esnext',
       outDir: 'build',
+      base: './',
     },
     server: {
       host: '0.0.0.0',
