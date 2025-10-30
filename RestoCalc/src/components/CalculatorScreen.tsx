@@ -22,6 +22,7 @@ export default function CalculatorScreen() {
   const [showEURModal, setShowEURModal] = useState(false);
   const [showBGNModal, setShowBGNModal] = useState(false);
   const [showFullScreen, setShowFullScreen] = useState(false);
+  const [suppressNextBlurModal, setSuppressNextBlurModal] = useState(false);
 
   const dueEURInputRef = React.useRef<HTMLInputElement>(null);
   const dueBGNInputRef = React.useRef<HTMLInputElement>(null);
@@ -143,6 +144,10 @@ export default function CalculatorScreen() {
 
   // Handle blur event on paid fields - show full screen if there's change
   const handlePaidBlur = async () => {
+    if (suppressNextBlurModal) {
+      setSuppressNextBlurModal(false);
+      return;
+    }
     if (totals.status === "change") {
       await saveToHistory();
       setShowFullScreen(true);
@@ -164,6 +169,26 @@ export default function CalculatorScreen() {
     setDueBGN("");
   };
 
+  const selectAllOnFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const input = e.currentTarget;
+
+    input.select?.();
+
+    requestAnimationFrame(() => {
+      try {
+        input.select?.();
+        if (typeof input.setSelectionRange === "function") {
+          input.setSelectionRange(0, input.value.length);
+        }
+      } catch {}
+    });
+  };
+
+  const preventMouseUp = (e: React.MouseEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>) => {
+    e.preventDefault();
+  };
+
+  
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     nextFieldRef: React.RefObject<HTMLInputElement> | null,
@@ -178,6 +203,28 @@ export default function CalculatorScreen() {
     }
   };
 
+  const handlePaidKeyDown = async (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    nextFieldRef: React.RefObject<HTMLInputElement> | null,
+  ) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Ако има ресто – директно модал
+      if (totals.status === "change") {
+        await saveToHistory();
+        setShowFullScreen(true);
+        return;
+      }
+      // Иначе – запази досегашното поведение (фокус нататък / blur)
+      if (nextFieldRef?.current) {
+        nextFieldRef.current.focus();
+      } else {
+        e.currentTarget.blur();
+      }
+    }
+  };
+
+  
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
@@ -288,12 +335,13 @@ export default function CalculatorScreen() {
                     setDueBGN("");
                   }}
                   onKeyDown={(e) => handleKeyDown(e, dueBGNInputRef)}
+                  onFocus={selectAllOnFocus}
                   className="pr-8"
                 />
                 {dueEUR && (
                   <button
                     onClick={clearDueEUR}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 z-10"
+                    className="absolute right-0 top-0 p-2-5 text-slate-400 hover:text-slate-600 z-10"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -319,12 +367,13 @@ export default function CalculatorScreen() {
                     setDueEUR("");
                   }}
                   onKeyDown={(e) => handleKeyDown(e, paidEURInputRef)}
+                  onFocus={selectAllOnFocus}
                   className="pr-8"
                 />
                 {dueBGN && (
                   <button
                     onClick={clearDueBGN}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 z-10"
+                    className="absolute right-0 top-0 p-2-5 text-slate-400 hover:text-slate-600 z-10"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -364,15 +413,17 @@ export default function CalculatorScreen() {
                   placeholder="0.00"
                   value={paidEUR}
                   onChange={(e) => setPaidEUR(normalizeDecimal(e.target.value))}
-                  onKeyDown={(e) => handleKeyDown(e, paidBGNInputRef)}
+                  onKeyDown={(e) => handlePaidKeyDown(e, paidBGNInputRef)}
+                  onFocus={selectAllOnFocus}
                   onBlur={handlePaidBlur}
                   disabled={!hasDueAmount}
                   className="pr-8"
                 />
                 {paidEUR && (
                   <button
-                    onClick={() => setPaidEUR("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 z-10"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => { setSuppressNextBlurModal(true); setPaidEUR(""); }}
+                    className="absolute right-0 top-0 p-2-5 text-slate-400 hover:text-slate-600 z-10"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -403,15 +454,17 @@ export default function CalculatorScreen() {
                   placeholder="0.00"
                   value={paidBGN}
                   onChange={(e) => setPaidBGN(normalizeDecimal(e.target.value))}
-                  onKeyDown={(e) => handleKeyDown(e, null)}
+                  onKeyDown={(e) => handlePaidKeyDown(e, null)}
+                  onFocus={selectAllOnFocus}
                   onBlur={handlePaidBlur}
                   disabled={!hasDueAmount}
                   className="pr-8"
                 />
                 {paidBGN && (
                   <button
-                    onClick={() => setPaidBGN("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 z-10"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => { setSuppressNextBlurModal(true); setPaidBGN(""); }}
+                    className="absolute right-0 top-0 p-2-5 text-slate-400 hover:text-slate-600 z-10"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -449,7 +502,11 @@ export default function CalculatorScreen() {
         currency="EUR"
         currentAmount={parseFloat(paidEUR) || 0}
         onSelect={(amount) => {
-          setPaidEUR(amount.toFixed(2));
+          if (amount === null) {
+            setPaidEUR("");
+          } else {
+            setPaidEUR(amount.toFixed(2));
+          }
         }}
       />
 
@@ -459,7 +516,11 @@ export default function CalculatorScreen() {
         currency="BGN"
         currentAmount={parseFloat(paidBGN) || 0}
         onSelect={(amount) => {
-          setPaidBGN(amount.toFixed(2));
+          if (amount === null) {
+            setPaidBGN("");
+          } else {
+            setPaidBGN(amount.toFixed(2));
+          }
         }}
       />
 

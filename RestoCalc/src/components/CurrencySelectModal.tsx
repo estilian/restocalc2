@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 
@@ -9,15 +9,15 @@ const EUR_DENOMINATIONS = {
 };
 
 const BGN_DENOMINATIONS = {
-  notes: [100, 50, 20, 10, 5, 2],
-  coins: [1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01]
+  notes: [100, 50, 20, 10, 5],
+  coins: [2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01]
 };
 
 interface CurrencySelectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currency: 'EUR' | 'BGN';
-  onSelect: (amount: number) => void;
+  onSelect: (amount: number | null) => void;
   currentAmount?: number;
 }
 
@@ -33,6 +33,10 @@ export default function CurrencySelectModal({
   const prevOpenRef = useRef(false);
 
   const denominations = currency === 'EUR' ? EUR_DENOMINATIONS : BGN_DENOMINATIONS;
+
+  const currencySymbol = currency === 'EUR' ? '€' : 'лв.';
+  const currencyCoins = currency === 'EUR' ? '¢' : 'ст.';
+  const currencyLabel = currency === 'EUR' ? 'евро' : 'лева';
 
   // Greedy algorithm to calculate optimal denomination combination
   const calculateOptimalCombination = (amount: number): { [key: number]: number } => {
@@ -82,10 +86,13 @@ export default function CurrencySelectModal({
 
   // Auto-update the amount in real-time
   useEffect(() => {
-    if (open) {
-      const total = calculateTotal();
-      onSelect(total);
+    if (!open) return;
+    const total = calculateTotal();
+    if (total === 0) {
+      onSelect(null);
+      return;
     }
+    onSelect(total);
   }, [selected, open]);
 
   // Set optimal combination when modal opens with currentAmount
@@ -107,40 +114,45 @@ export default function CurrencySelectModal({
 
   const handleClear = () => {
     setSelected({});
+    onSelect(null);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Избери номинали ({currency})</DialogTitle>
+          <DialogTitle>Избери номинали в {currencyLabel}</DialogTitle>
+          <DialogDescription className="sr-only">
+            Изберете банкноти и монети за {currencyLabel}. С бутоните добавяте, с клик върху „Избрани“ премахвате.
+            Полето „Общо“ се актуализира автоматично.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Auto-suggestion notice */}
-          {currentAmount && currentAmount > 0 && (
+          {(currentAmount ?? 0) > 0 && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-xs text-blue-800">
-                ✨ Автоматично предложение за {currentAmount.toFixed(2)} {currency} с минимален брой банкноти/монети
+                ✨ Автоматично предложение за {currentAmount!.toFixed(2)} {currencySymbol} с минимален брой банкноти/монети
               </p>
             </div>
           )}
           {/* Banknotes */}
           <div>
-            <h3 className="text-sm text-slate-600 mb-2">Банкноти</h3>
+            <h3 className="text-sm text-slate-600 mb-2"><strong>Банкноти в {currencyLabel}:</strong></h3>
             <div className="grid grid-cols-3 gap-2">
               {denominations.notes.map(value => (
                 <button
                   key={value}
                   onClick={() => toggleDenomination(value)}
-                  className={`p-3 rounded-lg border-2 transition-all ${
+                  className={`p-2 rounded-lg border-2 transition-all ${
                     selected[value]
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   <div className="text-center">
-                    <div className="text-slate-900">{value}</div>
+                    <div className="text-slate-900">{value} {currencySymbol}</div>
                     {selected[value] && (
                       <Badge variant="secondary" className="mt-1">
                         x{selected[value]}
@@ -154,35 +166,44 @@ export default function CurrencySelectModal({
 
           {/* Coins */}
           <div>
-            <h3 className="text-sm text-slate-600 mb-2">Монети</h3>
+            <h3 className="text-sm text-slate-600 mb-2">
+              <strong>Монети в {currencyLabel}:</strong>
+            </h3>
             <div className="grid grid-cols-4 gap-2">
-              {denominations.coins.map(value => (
-                <button
-                  key={value}
-                  onClick={() => toggleDenomination(value)}
-                  className={`p-2 rounded-lg border-2 transition-all ${
-                    selected[value]
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="text-xs text-slate-900">{value.toFixed(2)}</div>
-                    {selected[value] && (
-                      <Badge variant="secondary" className="mt-1 text-xs">
-                        x{selected[value]}
-                      </Badge>
-                    )}
-                  </div>
-                </button>
-              ))}
+              {denominations.coins.map((value) => {
+                const isSubunit = value < 1;
+                const displayValue = isSubunit ? Math.round(value * 100) : value;
+                const legend = isSubunit ? currencyCoins : currencySymbol;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => toggleDenomination(value)}
+                    className={`p-1 rounded-lg border-2 transition-all ${
+                      selected[value]
+                        ? 'border-orange-500 bg-orange-50'
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xs text-slate-900">
+                        {displayValue} {legend}
+                      </div>
+                      {selected[value] && (
+                        <Badge variant="secondary" className="mt-1 text-xs">
+                          x{selected[value]}
+                        </Badge>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Selected items */}
           {Object.keys(selected).length > 0 && (
             <div className="bg-slate-50 rounded-lg p-3">
-              <h3 className="text-sm text-slate-600 mb-2">Избрани:</h3>
+              <h3 className="text-sm text-slate-600 mb-2"><strong>Избрани</strong> <small>(натисни, за да изтриеш)</small>:</h3>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(selected).map(([value, count]) => (
                   <Badge
@@ -203,7 +224,7 @@ export default function CurrencySelectModal({
             <div className="flex items-center justify-between">
               <span className="text-slate-600">Общо:</span>
               <span className="text-blue-600">
-                {calculateTotal().toFixed(2)} {currency}
+                {calculateTotal().toFixed(2)} {currencySymbol}
               </span>
             </div>
           </div>

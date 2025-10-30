@@ -244,6 +244,10 @@
     height: auto;
   }
 
+  button {
+    cursor: pointer;
+  }
+  
   button, input, select, optgroup, textarea {
     font: inherit;
     font-feature-settings: inherit;
@@ -1055,6 +1059,14 @@
     background-color: var(--color-slate-100);
   }
 
+  .bg-slate-200 {
+    background-color: var(--color-slate-200);
+  }
+
+  .bg-slate-300 {
+    background-color: var(--color-slate-300);
+  }
+  
   .bg-white {
     background-color: var(--color-white);
   }
@@ -1067,6 +1079,10 @@
     padding: calc(var(--spacing) * 2);
   }
 
+  .p-2-5 {
+    padding: calc(var(--spacing) * 2.5);
+  }
+  
   .p-3 {
     padding: calc(var(--spacing) * 3);
   }

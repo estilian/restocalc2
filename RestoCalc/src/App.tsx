@@ -52,7 +52,7 @@ export default function App() {
             onClick={() => setActiveTab('calculator')}
             className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
               activeTab === 'calculator'
-                ? 'text-blue-500 dark:text-blue-400'
+                ? 'text-blue-500 dark:text-blue-400 bg-slate-200 dark:bg-slate-700'
                 : 'text-slate-400 dark:text-slate-500'
             }`}
           >
@@ -64,7 +64,7 @@ export default function App() {
             onClick={() => setActiveTab('history')}
             className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
               activeTab === 'history'
-                ? 'text-blue-500 dark:text-blue-400'
+                ? 'text-blue-500 dark:text-blue-400 bg-slate-200 dark:bg-slate-700'
                 : 'text-slate-400 dark:text-slate-500'
             }`}
           >
@@ -76,7 +76,7 @@ export default function App() {
             onClick={() => setActiveTab('info')}
             className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
               activeTab === 'info'
-                ? 'text-blue-500 dark:text-blue-400'
+                ? 'text-blue-500 dark:text-blue-400 bg-slate-200 dark:bg-slate-700'
                 : 'text-slate-400 dark:text-slate-500'
             }`}
           >

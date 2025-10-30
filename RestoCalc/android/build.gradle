@@ -39,11 +39,11 @@ subprojects { subproj ->
         defCfg.minSdkVersion    = rootProject.ext.minSdkVersion
       }
       androidExt.compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
       }
       if (subproj.hasProperty("kotlinOptions")) {
-        subproj.kotlinOptions { jvmTarget = "17" }
+        subproj.kotlinOptions { jvmTarget = "21" }
       }
     }
   }
