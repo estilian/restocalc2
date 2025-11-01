@@ -22,9 +22,9 @@ export default function FullScreenChange({
       <div className="text-center space-y-2">
         <p className="text-slate-600">Ресто за получаване</p>
         <div className="text-6xl text-blue-600 font-bold">
-          {changeEUR.toFixed(2)}
+          {changeEUR.toFixed(2)} €
         </div>
-        <div className="text-2xl text-blue-500">€</div>
+        {/* <div className="text-2xl text-blue-500">€</div> */}
         <p className="text-xs text-red-600 text-center">*от 01.01.2026 не може да се връща ресто в лева</p>
       </div>
 

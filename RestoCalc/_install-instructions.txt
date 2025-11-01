@@ -28,6 +28,31 @@ java -version
 
 ------------------------------------------------------------------------------
 
+# Чиста инсталация на Java 17:
+cd ~
+rm -rf jdk && mkdir -p jdk && cd jdk
+
+# Примерен фиксиран билд (смени с нужния, ако ползваш друг)
+curl -fL -o jdk17.tar.gz \
+  https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-linux_x64.tar.gz
+
+file jdk17.tar.gz
+ls -lh jdk17.tar.gz
+tar -tzf jdk17.tar.gz | head
+
+tar -xzf jdk17.tar.gz
+
+JDK_DIR="$(ls -1d "$HOME/jdk"/zulu17* | head -n1)"
+echo "Detected JDK_DIR=$JDK_DIR"
+test -x "$JDK_DIR/bin/java" && "$JDK_DIR/bin/java" -version
+
+export JAVA_HOME="$JDK_DIR"
+export PATH="$JAVA_HOME/bin:$PATH"
+which -a java
+java -version
+
+------------------------------------------------------------------------------
+
 # Ако при Build върне грешка, че не открива Java:
 export JAVA_HOME="/home/runner/jdk/zulu21.38.21-ca-jdk21.0.5-linux_x64"
 export PATH="$JAVA_HOME/bin:$PATH"
