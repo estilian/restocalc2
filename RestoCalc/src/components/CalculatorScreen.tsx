@@ -574,7 +574,7 @@ export default function CalculatorScreen() {
         </CardContent>
       </Card>
       {/* Debug counter for interstitials */}
-      <p className="text-xs text-muted-foreground text-center">
+      {/* <p className="text-xs text-muted-foreground text-center">
         Брой изчислени ресто в евро: {Number(localStorage.getItem('calcCount') ?? '0') || 0}
       </p>
       <div className="flex justify-center">
@@ -584,7 +584,7 @@ export default function CalculatorScreen() {
         >
           Debug на рекламата
         </button>
-      </div>
+      </div> */}
 
       {/* Modals */}
       <CurrencySelectModal

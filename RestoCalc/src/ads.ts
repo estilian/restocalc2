@@ -17,9 +17,9 @@ let __consentStatus: string | null = null;
 let __interstitialLoaded = false;
 let __lastLoadError: string | null = null;
 let __lastEvent: string | null = null;
-let __isTesting = true; // <- при PROD можеш да го направиш false
-let __adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Google TEST interstitial (Android)
-//let __adUnitId = 'ca-app-pub-4675518894512456/9632389573'; // PROD interstitial (Android)
+let __isTesting = false; // <- при PROD можеш да го направиш false
+//let __adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Google TEST interstitial (Android)
+let __adUnitId = 'ca-app-pub-4675518894512456/9632389573'; // PROD interstitial (Android)
 
 /** Позволява да подадеш PROD unit по време на рантайм */
 export function setInterstitialAdUnitId(adUnitId: string) {
@@ -62,8 +62,8 @@ export async function initAds() {
   try {
     // За тест: смени EEA -> NOT_EEA временно, за да валидираш зареждането на реклама без форма
     const consentInfo = await AdMob.requestConsentInfo({
-      // debugGeography: AdmobConsentDebugGeography.EEA,
-      debugGeography: AdmobConsentDebugGeography.NOT_EEA, // <- включи само за тест, после махни!
+      debugGeography: AdmobConsentDebugGeography.EEA,
+      // debugGeography: AdmobConsentDebugGeography.NOT_EEA, // <- включи само за тест, после махни!
       // testDeviceIdentifiers: ['YOUR_DEVICE_ID'],
     });
     __consentStatus = String(consentInfo?.status ?? 'unknown');
@@ -135,7 +135,6 @@ function attachInterstitialListenersOnce() {
   AdMob.addListener(InterstitialAdPluginEvents.Dismissed, async () => {
     __interstitialLoaded = false;
     __lastEvent = 'interstitial:dismissed';
-    // зареди следваща, за да е готова за следващото 3-то изчисление
     await preloadInterstitial();
   });
 }

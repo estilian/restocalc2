@@ -97,8 +97,8 @@ yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
 # 6) Инсталирай минимум нужните пакети
 sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
   "platform-tools" \
-  "build-tools;35.0.0" \
-  "platforms;android-35"
+  "build-tools;36.0.0" \
+  "platforms;android-36"
 
 ------------------------------------------------------------------------------
 
@@ -116,10 +116,28 @@ npm run build && npx cap copy && npx cap sync
 cd ~/workspace/RestoCalc/android
 ./gradlew --no-daemon assembleDebug    # APK за тест
 # ./gradlew --no-daemon --stacktrace --info assembleDebug - повече info при неуспешен build
-
 # Output of APK: android/app/build/outputs/apk/debug/app-debug.apk
+
 # (след подписване)
-./gradlew --no-daemon bundleRelease    # AAB за Play Store
+cd ~/workspace/RestoCalc/android
+./gradlew --no-daemon clean
+./gradlew --no-daemon signingReport
+./gradlew --no-daemon --stacktrace --info bundleRelease    # AAB за Play Store
+# Output of AAB: android/app/build/outputs/bundle/release/app-release.aab
+
+cd ~/workspace/RestoCalc/android/app
+
+# измисли си пароли (пример):
+STORE_PASS=''
+KEY_PASS=''
+
+keytool -genkeypair -v \
+  -keystore upload-keystore.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias upload \
+  -dname "CN=RestoCalc, OU=Dev, O=YourOrg, L=Sofia, ST=Sofia, C=BG" \
+  -storepass "$STORE_PASS" \
+  -keypass "$KEY_PASS"
 
 ----------------------------------------------------------------------------
 Подписване преди AAB генериране:
